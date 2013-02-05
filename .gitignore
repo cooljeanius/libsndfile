@@ -1,14 +1,17 @@
+*~
 *.8svx
 *.aif
 *.aifc
 *.aiff
 *.au
 *.bin
+*.cache
 *.cm*
 *.exe
 *.flac
 *.la
 *.lo
+*.log
 *.loT
 *.o
 *.oct

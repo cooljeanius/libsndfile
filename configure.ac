@@ -1,42 +1,52 @@
 # Copyright (C) 1999-2013  Erik de Castro Lopo <erikd@mega-nerd.com>.
 
 dnl Require autoconf version
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_INIT([libsndfile],[1.0.26pre4],[sndfile@mega-nerd.com],
 		[libsndfile],[http://www.mega-nerd.com/libsndfile/])
 
 # Put config stuff in Cfg.
-AC_CONFIG_AUX_DIR(Cfg)
-
+AC_CONFIG_AUX_DIR([Cfg])
 AC_CONFIG_SRCDIR([src/sndfile.c])
+AC_CANONICAL_HOST
 AC_CANONICAL_TARGET([])
 
 AC_CONFIG_MACRO_DIR([M4])
 AC_CONFIG_HEADERS([src/config.h])
 
-AM_INIT_AUTOMAKE($PACKAGE_NAME,$PACKAGE_VERSION)
+AM_INIT_AUTOMAKE
+AM_MAINTAINER_MODE
+AM_SANITY_CHECK
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AC_LANG([C])
+AC_ISC_POSIX
 
+AC_PROG_AWK
 AC_PROG_CC
 AM_PROG_CC_C_O
+AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_SED
+AC_PROG_MAKE_SET
+AC_PROG_RANLIB
+AC_LIBTOOL_WIN32_DLL
 
 # Do not check for F77.
 define([AC_LIBTOOL_LANG_F77_CONFIG], [:])dnl
 
 AM_PROG_LIBTOOL
 LT_PROG_RC
+LTVERSION_VERSION
 
+AM_PATH_PYTHON
 AC_PROG_INSTALL
 AC_PROG_LN_S
 
-AC_CHECK_PROG(HAVE_AUTOGEN, autogen, yes, no)
-AC_CHECK_PROG(HAVE_WINE, wine, yes, no)
-AC_CHECK_PROG(HAVE_XCODE_SELECT, xcode-select, yes, no)
+AC_CHECK_PROG([HAVE_AUTOGEN], [autogen], [yes], [no])
+AC_CHECK_PROG([HAVE_WINE], [wine], [yes], [no])
+AC_CHECK_PROG([HAVE_XCODE_SELECT], [xcode-select], [yes], [no])
 
 #------------------------------------------------------------------------------------
 # Rules for library version information:
@@ -63,12 +73,29 @@ SHARED_VERSION_INFO="1:$VERSION_MINOR:0"
 
 AC_HEADER_STDC
 
-AC_CHECK_HEADERS(endian.h)
-AC_CHECK_HEADERS(byteswap.h)
-AC_CHECK_HEADERS(locale.h)
-AC_CHECK_HEADERS(sys/time.h)
+AC_CHECK_HEADERS([endian.h])
+AC_CHECK_HEADERS([byteswap.h])
+AC_CHECK_HEADERS([locale.h])
+AC_CHECK_HEADERS([sys/time.h])
+AC_CHECK_HEADERS([fcntl.h inttypes.h limits.h malloc.h stddef.h stdint.h stdlib.h string.h sys/ioctl.h unistd.h])
 
 AC_HEADER_SYS_WAIT
+AC_CHECK_HEADER_STDBOOL
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_CHECK_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_INT16_T
+AC_TYPE_INT32_T
+AC_TYPE_INT64_T
+AC_TYPE_INT8_T
+AC_TYPE_OFF_T
+AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT64_T
+AC_TYPE_UINT8_T
 
 AC_CHECK_DECLS(S_IRGRP)
 if test x$ac_cv_have_decl_S_IRGRP = xyes ; then
@@ -144,16 +171,16 @@ AM_CONDITIONAL([ENABLE_TEST_COVERAGE], [test "$enable_test_coverage" = yes])
 #====================================================================================
 # Check types and their sizes.
 
-AC_CHECK_SIZEOF(wchar_t,4)
-AC_CHECK_SIZEOF(short,2)
-AC_CHECK_SIZEOF(int,4)
-AC_CHECK_SIZEOF(long,4)
-AC_CHECK_SIZEOF(float,4)
-AC_CHECK_SIZEOF(double,4)
-AC_CHECK_SIZEOF(void*,8)
-AC_CHECK_SIZEOF(size_t,4)
-AC_CHECK_SIZEOF(int64_t,8)
-AC_CHECK_SIZEOF(long long,8)
+AC_CHECK_SIZEOF([wchar_t], [4])
+AC_CHECK_SIZEOF([short], [2])
+AC_CHECK_SIZEOF([int], [4])
+AC_CHECK_SIZEOF([long], [4])
+AC_CHECK_SIZEOF([float], [4])
+AC_CHECK_SIZEOF([double], [4])
+AC_CHECK_SIZEOF([void*], [8])
+AC_CHECK_SIZEOF([size_t], [4])
+AC_CHECK_SIZEOF([int64_t], [8])
+AC_CHECK_SIZEOF([long long], [8])
 
 #====================================================================================
 # Find an appropriate type for sf_count_t.
@@ -163,7 +190,7 @@ AC_CHECK_SIZEOF(long long,8)
 
 unset ac_cv_sizeof_off_t
 
-AC_CHECK_SIZEOF(off_t,1)	# Fake default value.
+AC_CHECK_SIZEOF([off_t], [1])	# Fake default value.
 
 case "$host_os" in
 	mingw32msvc | mingw32)
@@ -245,8 +272,8 @@ AC_SUBST(SIZEOF_SF_COUNT_T)
 AC_DEFINE_UNQUOTED([SF_COUNT_MAX],${SF_COUNT_MAX}, [Set to maximum allowed value of sf_count_t type.])
 AC_SUBST(SF_COUNT_MAX)
 
-AC_CHECK_TYPES(ssize_t)
-AC_CHECK_SIZEOF(ssize_t,4)
+AC_CHECK_TYPES([ssize_t])
+AC_CHECK_SIZEOF([ssize_t], [4])
 
 #====================================================================================
 # Determine endian-ness of target processor.
@@ -263,17 +290,24 @@ AC_DEFINE_UNQUOTED(WORDS_BIGENDIAN, ${ac_cv_c_big_endian},
 #====================================================================================
 # Check for functions.
 
-AC_CHECK_FUNCS(malloc calloc realloc free)
-AC_CHECK_FUNCS(open read write lseek pread pwrite)
-AC_CHECK_FUNCS(fstat ftruncate fsync)
-AC_CHECK_FUNCS(snprintf vsnprintf)
-AC_CHECK_FUNCS(gmtime gmtime_r localtime localtime_r gettimeofday)
-AC_CHECK_FUNCS(mmap getpagesize)
-AC_CHECK_FUNCS(setlocale)
-AC_CHECK_FUNCS(pipe waitpid)
+AC_FUNC_ERROR_AT_LINE
+AC_FUNC_MALLOC
+AC_FUNC_REALLOC
+AC_CHECK_FUNCS([getcwd memchr memset pow sqrt strchr strdup strerror strrchr strstr strtol])
 
-AC_CHECK_LIB([m],floor)
-AC_CHECK_FUNCS(floor ceil fmod lround)
+AC_CHECK_FUNCS([malloc calloc realloc free])
+AC_CHECK_FUNCS([open read write lseek pread pwrite])
+AC_CHECK_FUNCS([fstat ftruncate fsync])
+AC_CHECK_FUNCS([snprintf vsnprintf])
+AC_CHECK_FUNCS([gmtime gmtime_r localtime localtime_r gettimeofday])
+AC_CHECK_FUNCS([mmap getpagesize])
+AC_CHECK_FUNCS([setlocale])
+AC_CHECK_FUNCS([pipe waitpid])
+
+AC_CHECK_LIB([m], [floor])
+# FIXME: Replace `main' with a function in `-lsndfile':
+AC_CHECK_LIB([sndfile], [main])
+AC_CHECK_FUNCS([floor ceil fmod lround])
 
 MN_C99_FUNC_LRINT
 MN_C99_FUNC_LRINTF
@@ -420,7 +454,7 @@ AM_CONDITIONAL(USE_WIN_VERSION_FILE, test ${use_windows_api} -eq 1)
 ALSA_LIBS=""
 
 if test x$enable_alsa != xno ; then
-	AC_CHECK_HEADERS(alsa/asoundlib.h)
+	AC_CHECK_HEADERS([alsa/asoundlib.h])
 	if test x$ac_cv_header_alsa_asoundlib_h = xyes ; then
 		ALSA_LIBS="-lasound"
 		enable_alsa=yes
@@ -431,7 +465,7 @@ if test x$enable_alsa != xno ; then
 # Check for OpenBSD's sndio.
 
 SNDIO_LIBS=""
-AC_CHECK_HEADERS(sndio.h)
+AC_CHECK_HEADERS([sndio.h])
 if test x$ac_cv_header_sndio_h = xyes ; then
 	SNDIO_LIBS="-lsndio"
 	fi
