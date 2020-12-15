@@ -1,10 +1,9 @@
 # Copyright (C) 1999-2013  Erik de Castro Lopo <erikd@mega-nerd.com>.
 
 dnl Require autoconf version
-AC_PREREQ([2.57])
+AC_PREREQ([2.70])
 
-AC_INIT([libsndfile],[1.0.26pre4],[sndfile@mega-nerd.com],
-		[libsndfile],[http://www.mega-nerd.com/libsndfile/])
+AC_INIT([libsndfile],[1.0.26pre4],[sndfile@mega-nerd.com],[libsndfile],[http://www.mega-nerd.com/libsndfile/])
 
 # Put config stuff in Cfg.
 AC_CONFIG_AUX_DIR([Cfg])
@@ -21,7 +20,7 @@ AM_SANITY_CHECK
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AC_LANG([C])
-AC_ISC_POSIX
+AC_SEARCH_LIBS([strerror],[cposix])dnl
 
 AC_PROG_AWK
 AC_PROG_CC
@@ -31,12 +30,11 @@ AC_PROG_CXX
 AC_PROG_SED
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
-AC_LIBTOOL_WIN32_DLL
 
 # Do not check for F77.
-define([AC_LIBTOOL_LANG_F77_CONFIG], [:])dnl
+define([AC_LIBTOOL_LANG_F77_CONFIG],[:])dnl
 
-AM_PROG_LIBTOOL
+LT_INIT([win32-dll])
 LT_PROG_RC
 LTVERSION_VERSION
 
@@ -48,7 +46,7 @@ AC_CHECK_PROG([HAVE_AUTOGEN], [autogen], [yes], [no])
 AC_CHECK_PROG([HAVE_WINE], [wine], [yes], [no])
 AC_CHECK_PROG([HAVE_XCODE_SELECT], [xcode-select], [yes], [no])
 
-#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Rules for library version information:
 #
 #  1. Start with version information of `0:0:0' for each libtool library.
@@ -69,9 +67,16 @@ VERSION_MINOR=`echo $CLEAN_VERSION | $SED "s/.*\.//"`
 
 SHARED_VERSION_INFO="1:$VERSION_MINOR:0"
 
-#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
-AC_HEADER_STDC
+dnl# message from autoupdate:
+dnl# Except in unusual embedded environments, you can safely include all
+dnl# ISO C90 headers unconditionally.
+# Autoupdate added the next two lines to ensure that your configure
+# script's behavior did not change.  They are probably safe to remove.
+AC_CHECK_INCLUDES_DEFAULT
+AC_PROG_EGREP
+
 
 AC_CHECK_HEADERS([endian.h])
 AC_CHECK_HEADERS([byteswap.h])
@@ -120,16 +125,16 @@ else
 	AC_DEFINE([HAVE_FLEXIBLE_ARRAY],0)
 	fi
 
-#====================================================================================
+#==============================================================================
 # Couple of initializations here. Fill in real values later.
 
 SHLIB_VERSION_ARG=""
 
-#====================================================================================
+#==============================================================================
 # Finished checking, handle options.
 
-AC_ARG_ENABLE(experimental,
-	AC_HELP_STRING([--enable-experimental], [enable experimental code]))
+AC_ARG_ENABLE([experimental],
+	[AS_HELP_STRING([--enable-experimental],[enable experimental code])])
 
 EXPERIMENTAL_CODE=0
 if test x$enable_experimental = xyes ; then
@@ -137,38 +142,39 @@ if test x$enable_experimental = xyes ; then
 	fi
 AC_DEFINE_UNQUOTED([ENABLE_EXPERIMENTAL_CODE],${EXPERIMENTAL_CODE}, [Set to 1 to enable experimental code.])
 
-AC_ARG_ENABLE(gcc-werror,
-	AC_HELP_STRING([--enable-gcc-werror], [enable -Werror in all Makefiles]))
+AC_ARG_ENABLE([gcc-werror],
+	[AS_HELP_STRING([--enable-gcc-werror],[enable -Werror in all Makefiles])])
 
-AC_ARG_ENABLE(gcc-pipe,
-	AC_HELP_STRING([--disable-gcc-pipe], [disable gcc -pipe option]))
+AC_ARG_ENABLE([gcc-pipe],
+	[AS_HELP_STRING([--disable-gcc-pipe],[disable gcc -pipe option])])
 
-AC_ARG_ENABLE(gcc-opt,
-	AC_HELP_STRING([--disable-gcc-opt], [disable gcc optimisations]))
+AC_ARG_ENABLE([gcc-opt],
+	[AS_HELP_STRING([--disable-gcc-opt],[disable gcc optimisations])])
 
-AC_ARG_ENABLE(cpu-clip,
-	AC_HELP_STRING([--disable-cpu-clip], [disable tricky cpu specific clipper]))
+AC_ARG_ENABLE([cpu-clip],
+	[AS_HELP_STRING([--disable-cpu-clip],[disable tricky cpu specific clipper])])
 
-AC_ARG_ENABLE(bow-docs,
-	AC_HELP_STRING([--enable-bow-docs], [enable black-on-white html docs]))
+AC_ARG_ENABLE([bow-docs],
+	[AS_HELP_STRING([--enable-bow-docs],[enable black-on-white html docs])])
 
-AC_ARG_ENABLE(sqlite,
-	AC_HELP_STRING([--disable-sqlite], [disable use of sqlite]))
+AC_ARG_ENABLE([sqlite],
+	[AS_HELP_STRING([--disable-sqlite],[disable use of sqlite])])
 
-AC_ARG_ENABLE(alsa,
-	AC_HELP_STRING([--disable-alsa], [disable use of ALSA]))
+AC_ARG_ENABLE([alsa],
+	[AS_HELP_STRING([--disable-alsa],[disable use of ALSA])])
 
-AC_ARG_ENABLE(external-libs,
-	AC_HELP_STRING([--disable-external-libs], [disable use of FLAC, Ogg and Vorbis [[default=no]]]))
+AC_ARG_ENABLE([external-libs],
+	[AS_HELP_STRING([--disable-external-libs],[disable use of FLAC, Ogg and Vorbis [[default=no]]])])
 
-AC_ARG_ENABLE(octave,
-	AC_HELP_STRING([--enable-octave], [disable building of GNU Octave module]))
+AC_ARG_ENABLE([octave],
+	[AS_HELP_STRING([--enable-octave],[disable building of GNU Octave module])])
 
-AC_ARG_ENABLE(test-coverage,
-	AC_HELP_STRING([--enable-test-coverage], [enable test coverage]))
+AC_ARG_ENABLE([test-coverage],
+	[AS_HELP_STRING([--enable-test-coverage],[enable test coverage])])
+
 AM_CONDITIONAL([ENABLE_TEST_COVERAGE], [test "$enable_test_coverage" = yes])
 
-#====================================================================================
+#==============================================================================
 # Check types and their sizes.
 
 AC_CHECK_SIZEOF([wchar_t], [4])
@@ -182,7 +188,7 @@ AC_CHECK_SIZEOF([size_t], [4])
 AC_CHECK_SIZEOF([int64_t], [8])
 AC_CHECK_SIZEOF([long long], [8])
 
-#====================================================================================
+#==============================================================================
 # Find an appropriate type for sf_count_t.
 # On systems supporting files larger than 2 Gig, sf_count_t must be a 64 bit value.
 # Unfortunately there is more than one way of ensuring this so need to do some
@@ -275,7 +281,7 @@ AC_SUBST(SF_COUNT_MAX)
 AC_CHECK_TYPES([ssize_t])
 AC_CHECK_SIZEOF([ssize_t], [4])
 
-#====================================================================================
+#==============================================================================
 # Determine endian-ness of target processor.
 
 MN_C_FIND_ENDIAN
@@ -287,7 +293,7 @@ AC_DEFINE_UNQUOTED(CPU_IS_LITTLE_ENDIAN, ${ac_cv_c_little_endian},
 AC_DEFINE_UNQUOTED(WORDS_BIGENDIAN, ${ac_cv_c_big_endian},
 	[Target processor is big endian.])
 
-#====================================================================================
+#==============================================================================
 # Check for functions.
 
 AC_FUNC_ERROR_AT_LINE
@@ -312,7 +318,7 @@ AC_CHECK_FUNCS([floor ceil fmod lround])
 MN_C99_FUNC_LRINT
 MN_C99_FUNC_LRINTF
 
-#====================================================================================
+#==============================================================================
 # Check for requirements for building plugins for other languages/enviroments.
 
 dnl Octave maths environment http://www.octave.org/
@@ -326,7 +332,7 @@ else
 	AM_CONDITIONAL(BUILD_OCTAVE_MOD, false)
 	fi
 
-#====================================================================================
+#==============================================================================
 # Check for Ogg, Vorbis and FLAC.
 
 HAVE_EXTERNAL_LIBS=0
@@ -384,7 +390,7 @@ if test -n "$PKG_CONFIG" ; then
 
 AC_DEFINE_UNQUOTED([HAVE_EXTERNAL_LIBS], $HAVE_EXTERNAL_LIBS, [Will be set to 1 if flac, ogg and vorbis are available.])
 
-#====================================================================================
+#==============================================================================
 # Check for libsqlite3 (only used in regtest).
 
 ac_cv_sqlite3=no
@@ -400,7 +406,7 @@ else
 
 AC_DEFINE_UNQUOTED([HAVE_SQLITE3],$HAVE_SQLITE3,[Set to 1 if you have libsqlite3.])
 
-#====================================================================================
+#==============================================================================
 # Determine if the processor can do clipping on float to int conversions.
 
 if test x$enable_cpu_clip != "xno" ; then
@@ -416,7 +422,7 @@ AC_DEFINE_UNQUOTED(CPU_CLIPS_POSITIVE, ${ac_cv_c_clip_positive},
 AC_DEFINE_UNQUOTED(CPU_CLIPS_NEGATIVE, ${ac_cv_c_clip_negative},
 	[Target processor clips on negative float to int conversion.])
 
-#====================================================================================
+#==============================================================================
 # Target OS specific stuff.
 
 OS_SPECIFIC_CFLAGS=""
@@ -448,7 +454,7 @@ AC_DEFINE_UNQUOTED(USE_WINDOWS_API, ${use_windows_api}, [Set to 1 to use the nat
 AC_DEFINE_UNQUOTED(OSX_DARWIN_VERSION, ${osx_darwin_version}, [The darwin version, no-zero is valid])
 AM_CONDITIONAL(USE_WIN_VERSION_FILE, test ${use_windows_api} -eq 1)
 
-#====================================================================================
+#==============================================================================
 # Check for ALSA.
 
 ALSA_LIBS=""
@@ -461,7 +467,7 @@ if test x$enable_alsa != xno ; then
 		fi
 	fi
 
-#====================================================================================
+#==============================================================================
 # Check for OpenBSD's sndio.
 
 SNDIO_LIBS=""
@@ -470,39 +476,39 @@ if test x$ac_cv_header_sndio_h = xyes ; then
 	SNDIO_LIBS="-lsndio"
 	fi
 
-#====================================================================================
+#==============================================================================
 # Test for sanity when cross-compiling.
 
 if test x$cross_compiling = xyes ; then
-	AC_MSG_WARN([[******************************************************************]])
+	AC_MSG_WARN([[**************************************************************]])
 	AC_MSG_WARN([[*** We are cross-compiling, so have to assume sizeof (short) == 2 ]])
 	AC_MSG_WARN([[*** and sizeof (int) == 4. If this is not the case there is no    ]])
 	AC_MSG_WARN([[*** chance of this working. Please contact the mantainer.         ]])
-	AC_MSG_WARN([[******************************************************************]])
+	AC_MSG_WARN([[**************************************************************]])
 	fi
 
 if test $ac_cv_sizeof_short != 2 ; then
-	AC_MSG_WARN([[******************************************************************]])
+	AC_MSG_WARN([[**************************************************************]])
 	AC_MSG_WARN([[*** sizeof (short) != 2.                                          ]])
-	AC_MSG_WARN([[******************************************************************]])
+	AC_MSG_WARN([[**************************************************************]])
 	fi
 
 if test $ac_cv_sizeof_int != 4 ; then
-	AC_MSG_WARN([[******************************************************************]])
+	AC_MSG_WARN([[**************************************************************]])
 	AC_MSG_WARN([[*** sizeof (int) != 4                                             ]])
-	AC_MSG_WARN([[******************************************************************]])
+	AC_MSG_WARN([[**************************************************************]])
 	fi
 
 if test $ac_cv_sizeof_float != 4 ; then
-	AC_MSG_WARN([[******************************************************************]])
+	AC_MSG_WARN([[**************************************************************]])
 	AC_MSG_WARN([[*** sizeof (float) != 4.                                          ]])
-	AC_MSG_WARN([[******************************************************************]])
+	AC_MSG_WARN([[**************************************************************]])
 	fi
 
 if test $ac_cv_sizeof_double != 8 ; then
-	AC_MSG_WARN([[******************************************************************]])
+	AC_MSG_WARN([[**************************************************************]])
 	AC_MSG_WARN([[*** sizeof (double) != 8.                                         ]])
-	AC_MSG_WARN([[******************************************************************]])
+	AC_MSG_WARN([[**************************************************************]])
 	fi
 
 if test x"$ac_cv_prog_HAVE_AUTOGEN" = "xno" ; then
@@ -510,7 +516,7 @@ if test x"$ac_cv_prog_HAVE_AUTOGEN" = "xno" ; then
 	touch tests/*.c tests/*.h
 	fi
 
-#====================================================================================
+#==============================================================================
 # Settings for the HTML documentation.
 
 htmldocdir=$prefix/share/doc/libsndfile1-dev/html
@@ -529,7 +535,7 @@ else
 	HTML_FGCOLOUR="white"
 	fi
 
-#====================================================================================
+#==============================================================================
 # Now use the information from the checking stage.
 
 win32_target_dll=0
@@ -635,7 +641,7 @@ if test "$HOST_TRIPLET" = "x86_64-w64-mingw32" ; then
 
 WIN_RC_VERSION=`echo $PACKAGE_VERSION | $SED -e "s/p.*//" -e "s/\./,/g"`
 
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 AC_SUBST(HOST_TRIPLET)
 
@@ -673,7 +679,7 @@ AC_OUTPUT
 # Make sure these are executable.
 chmod u+x tests/test_wrapper.sh build-test-tarball.mk
 
-#====================================================================================
+#==============================================================================
 
 AC_MSG_RESULT([
 -=-=-=-=-=-=-=-=-=-= Configuration Complete =-=-=-=-=-=-=-=-=-=-

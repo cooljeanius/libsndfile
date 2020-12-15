@@ -50,13 +50,13 @@ eval "pkg_LIBS=\${pkg_cv_[]$1[]_LIBS}"
 CFLAGS="$CFLAGS $pkg_CFLAGS"
 LIBS="$LIBS $pkg_LIBS"
 
-AC_TRY_LINK([], puts ("");, pkg_link=yes, pkg_link=no)
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[puts ("");]])],[pkg_link=yes],[pkg_link=no])
 
 CFLAGS=$pkg_link_saved_CFLAGS
 LIBS=$pkg_link_saved_LIBS
 
 if test $pkg_link = no ; then
-	$as_echo_n "link failed ... "
+	AS_ECHO_N(["link failed ... "])
 	pkg_failed=yes
 	fi
 

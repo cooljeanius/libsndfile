@@ -11,11 +11,6 @@ dnl made about the suitability of this software for any purpose.  It is
 dnl provided "as is" without express or implied warranty.
 
 
-
-
-
-
-
 dnl Find the clipping mode in the following way:
 dnl    1) If we are not cross compiling test it.
 dnl    2) IF we are cross compiling, assume that clipping isn't done correctly.
@@ -30,8 +25,7 @@ ac_cv_c_clip_negative=unknown
 
 
 if test $ac_cv_c_clip_positive = unknown ; then
-	AC_TRY_RUN(
-	[[
+	AC_RUN_IFELSE([AC_LANG_SOURCE([[[
 	#define	_ISOC9X_SOURCE	1
 	#define _ISOC99_SOURCE	1
 	#define	__USE_ISOC99	1
@@ -52,14 +46,10 @@ if test $ac_cv_c_clip_positive = unknown ; then
 		
 			return 0 ;
 		}
-		]],
-		ac_cv_c_clip_positive=yes,
-		ac_cv_c_clip_positive=no,
-		ac_cv_c_clip_positive=unknown
-		)
+		]]])],[ac_cv_c_clip_positive=yes],[ac_cv_c_clip_positive=no],[ac_cv_c_clip_positive=unknown
+		])
 
-	AC_TRY_RUN(
-	[[
+	AC_RUN_IFELSE([AC_LANG_SOURCE([[
 	#define	_ISOC9X_SOURCE	1
 	#define _ISOC99_SOURCE	1
 	#define	__USE_ISOC99	1
@@ -80,11 +70,8 @@ if test $ac_cv_c_clip_positive = unknown ; then
 		
 			return 0 ;
 		}
-		]],
-		ac_cv_c_clip_negative=yes,
-		ac_cv_c_clip_negative=no,
-		ac_cv_c_clip_negative=unknown
-		)
+		]])],[ac_cv_c_clip_negative=yes],[ac_cv_c_clip_negative=no],[ac_cv_c_clip_negative=unknown
+		])
 	fi
 
 if test $ac_cv_c_clip_positive = yes ; then
@@ -117,8 +104,6 @@ case "$ac_cv_c_clip_positive$ac_cv_c_clip_negative" in
 	]]
 
 )
-]
-
-)# MN_C_CLIP_MODE
+])# MN_C_CLIP_MODE
 
 

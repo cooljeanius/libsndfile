@@ -14,6 +14,7 @@
 *.log
 *.loT
 *.o
+*.o.tmp
 *.oct
 *.oga
 *.ogg
@@ -43,9 +44,11 @@ Makefile.in
 aclocal.m4
 autom4te.cache
 build-test-tarball.mk
+confdefs.h
 config.log
 config.status
 configure
+conftest*
 doc/AUTHORS
 doc/ChangeLog
 doc/NEWS

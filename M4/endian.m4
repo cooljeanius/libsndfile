@@ -6,7 +6,7 @@ dnl @author Erik de Castro Lopo <erikd AT mega-nerd DOT com>
 dnl
 dnl Majority written from scratch to replace the standard autoconf macro 
 dnl AC_C_BIGENDIAN. Only part remaining from the original it the invocation
-dnl of the AC_TRY_RUN macro.
+dnl of the AC\_RUN\_IFELSE macro.
 dnl
 dnl Permission to use, copy, modify, distribute, and sell this file for any 
 dnl purpose is hereby granted without fee, provided that the above copyright 
@@ -31,57 +31,51 @@ if test x$ac_cv_header_endian_h = xyes ; then
 
 	# First try <endian.h> which should set BYTE_ORDER.
 
-	[AC_TRY_LINK([
+	[AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 		#include <endian.h>
 		#if BYTE_ORDER != LITTLE_ENDIAN
 			not big endian
 		#endif
-		], return 0 ;, 
-			ac_cv_c_byte_order=little
-		)]
+		]], [[return 0 ;]])],[ac_cv_c_byte_order=little
+		],[])]
 				
-	[AC_TRY_LINK([
+	[AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 		#include <endian.h>
 		#if BYTE_ORDER != BIG_ENDIAN
 			not big endian
 		#endif
-		], return 0 ;, 
-			ac_cv_c_byte_order=big
-		)]
+		]], [[return 0 ;]])],[ac_cv_c_byte_order=big
+		],[])]
 
 	fi
 
 if test $ac_cv_c_byte_order = unknown ; then
 
-	[AC_TRY_LINK([
+	[AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 		#include <sys/types.h>
 		#include <sys/param.h>
 		#if !BYTE_ORDER || !BIG_ENDIAN || !LITTLE_ENDIAN
 			bogus endian macros
 		#endif
-		], return 0 ;, 
-
-		[AC_TRY_LINK([
+		]], [[return 0 ;]])],[AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 			#include <sys/types.h>
 			#include <sys/param.h>
 			#if BYTE_ORDER != LITTLE_ENDIAN
 				not big endian
 			#endif
-			], return 0 ;, 
-				ac_cv_c_byte_order=little
-			)]
+			]], [[return 0 ;]])],[ac_cv_c_byte_order=little
+			],[])
 				
-		[AC_TRY_LINK([
+		AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 			#include <sys/types.h>
 			#include <sys/param.h>
 			#if BYTE_ORDER != LITTLE_ENDIAN
 				not big endian
 			#endif
-			], return 0 ;, 
-				ac_cv_c_byte_order=little
-			)]
+			]], [[return 0 ;]])],[ac_cv_c_byte_order=little
+			],[])
 
-		)]
+		],[])]
 
  	fi
 
@@ -102,8 +96,7 @@ if test $ac_cv_c_byte_order = unknown ; then
 			esac
 		]
 	else
-		AC_TRY_RUN(
-		[[
+		AC_RUN_IFELSE([AC_LANG_SOURCE([[[
 		int main (void) 
 		{	/* Are we little or big endian?  From Harbison&Steele.  */
 			union
@@ -113,11 +106,9 @@ if test $ac_cv_c_byte_order = unknown ; then
 			u.l = 1 ;
 			return (u.c [sizeof (long) - 1] == 1);
 			}
-			]], , ac_cv_c_byte_order=big, 
-			)
+			]]])],[],[ac_cv_c_byte_order=big],[])
 
-		AC_TRY_RUN(
-		[[int main (void) 
+		AC_RUN_IFELSE([AC_LANG_SOURCE([[[int main (void) 
 		{	/* Are we little or big endian?  From Harbison&Steele.  */
 			union
 			{	long l ;
@@ -125,8 +116,7 @@ if test $ac_cv_c_byte_order = unknown ; then
 			} u ;
 			u.l = 1 ;
 			return (u.c [0] == 1);
-			}]], , ac_cv_c_byte_order=little, 
-			)
+			}]]])],[],[ac_cv_c_byte_order=little],[])
 		fi	
 	fi
 
@@ -142,14 +132,13 @@ else
 	ac_cv_c_big_endian=0
 	ac_cv_c_little_endian=0
 
-	AC_MSG_WARN([[*****************************************************************]])
-	AC_MSG_WARN([[*** Not able to determine endian-ness of target processor.       ]])
-	AC_MSG_WARN([[*** The constants CPU_IS_BIG_ENDIAN and CPU_IS_LITTLE_ENDIAN in  ]])
-	AC_MSG_WARN([[*** src/config.h may need to be hand editied.                    ]])
-	AC_MSG_WARN([[*****************************************************************]])
+	AC_MSG_WARN([[***********************************************************]])
+	AC_MSG_WARN([[*** Not able to determine endian-ness of target processor. ]])
+	AC_MSG_WARN([[*** The constants CPU_IS_BIG_ENDIAN & CPU_IS_LITTLE_ENDIAN ]])
+	AC_MSG_WARN([[*** in src/config.h may need to be hand editied.           ]])
+	AC_MSG_WARN([[***********************************************************]])
 	fi
 
-]
-)# MN_C_FIND_ENDIAN
+])# MN_C_FIND_ENDIAN
 
 
